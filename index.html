@@ -1,10 +1,1757 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Lunyova Art Nails</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Маникулатор</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi0JzQsNGA0LjRiNC40LXQvCIsInNob3J0X25hbWUiOiLQnNCw0YDQuNGI0LjQtdC8Iiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiNmZmZmZmYiLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0In0=">
+    <style>
+        :root {
+            --primary: #4ade80;
+            --primary-dark: #22c55e;
+            --background: #ffffff;
+            --surface: #f3f4f6;
+            --surface-elevated: #ffffff;
+            --text: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: calc(20px + env(safe-area-inset-top));
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .settings-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--surface);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .settings-btn:hover {
+            background-color: var(--border);
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--surface);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            background-color: var(--border);
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 500;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .today-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .today-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 8px 0;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            background-color: var(--surface);
+        }
+
+        .day:hover {
+            background-color: var(--border);
+        }
+
+        .day.today {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .day.today.search-match {
+            background-color: var(--primary-dark);
+        }
+
+        .day.inactive {
+            color: var(--text-secondary);
+            background-color: transparent;
+            cursor: default;
+        }
+
+        .day.inactive:hover {
+            background-color: transparent;
+        }
+
+        .day.search-match {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .day-number {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .day-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: var(--primary-dark);
+            color: white;
+            border-radius: 10px;
+            font-size: 10px;
+            padding: 2px 4px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .day.search-match .day-badge {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .search-clear:hover {
+            background-color: var(--text);
+        }
+
+        .income-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--radius);
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+
+        .income-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            padding: 20px;
+            padding-top: calc(20px + env(safe-area-inset-top));
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--surface-elevated);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px var(--shadow);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--surface);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: var(--border);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+        }
+
+        .time-picker {
+            display: flex;
+            gap: 10px;
+            height: 200px;
+            overflow: hidden;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+        }
+
+        .time-column {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .time-column::-webkit-scrollbar {
+            display: none;
+        }
+
+        .time-option {
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .time-option:hover {
+            background-color: var(--border);
+        }
+
+        .time-option.selected {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .client-list {
+            margin-top: 20px;
+        }
+
+        .client-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-radius: var(--radius);
+            background-color: var(--surface);
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+
+        .client-item:hover {
+            background-color: var(--border);
+        }
+
+        .client-info {
+            flex: 1;
+        }
+
+        .client-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .client-time {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .client-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .client-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--surface);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background-color: var(--border);
+        }
+
+        .action-btn.delete:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .duplicate-section {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--radius);
+            background-color: var(--surface);
+        }
+
+        .duplicate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .duplicate-title {
+            font-weight: 500;
+        }
+
+        .duplicate-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .duplicate-content {
+            display: none;
+        }
+
+        .duplicate-content.active {
+            display: block;
+        }
+
+        .income-periods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .income-period {
+            padding: 12px;
+            border-radius: var(--radius);
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .income-period:hover {
+            border-color: var(--primary);
+        }
+
+        .income-period.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .income-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .income-result {
+            padding: 20px;
+            border-radius: var(--radius);
+            background-color: var(--surface);
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .theme-card {
+            padding: 15px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-card:hover {
+            border-color: var(--primary);
+        }
+
+        .theme-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+        }
+
+        .theme-name {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .theme-preview {
+            display: flex;
+            height: 60px;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .theme-color {
+            flex: 1;
+        }
+
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .import-export-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: var(--radius);
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .import-export-btn:hover {
+            background-color: var(--border);
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+
+        .btn-danger {
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            background-color: #fee2e2;
+            color: #ef4444;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-danger:hover {
+            background-color: #fecaca;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Темы */
+        .theme-white-mint {
+            --primary: #4ade80;
+            --primary-dark: #22c55e;
+            --background: #ffffff;
+            --surface: #f3f4f6;
+            --surface-elevated: #ffffff;
+            --text: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        .theme-lavender {
+            --primary: #c084fc;
+            --primary-dark: #a855f7;
+            --background: #f5f3ff;
+            --surface: #ede9fe;
+            --surface-elevated: #ffffff;
+            --text: #4c1d95;
+            --text-secondary: #7c3aed;
+            --border: #ddd6fe;
+        }
+
+        .theme-space-gray {
+            --primary: #9ca3af;
+            --primary-dark: #6b7280;
+            --background: #111827;
+            --surface: #1f2937;
+            --surface-elevated: #374151;
+            --text: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border: #4b5563;
+        }
+
+        .theme-rose-gold {
+            --primary: #f9a8d4;
+            --primary-dark: #f472b6;
+            --background: #fdf2f8;
+            --surface: #fce7f3;
+            --surface-elevated: #ffffff;
+            --text: #831843;
+            --text-secondary: #be185d;
+            --border: #fbcfe8;
+        }
+
+        .theme-frosted-blue {
+            --primary: #7dd3fc;
+            --primary-dark: #38bdf8;
+            --background: #f0f9ff;
+            --surface: #e0f2fe;
+            --surface-elevated: #ffffff;
+            --text: #0c4a6e;
+            --text-secondary: #0369a1;
+            --border: #bae6fd;
+        }
+
+        .theme-warm-beige {
+            --primary: #fcd34d;
+            --primary-dark: #fbbf24;
+            --background: #fffbeb;
+            --surface: #fef3c7;
+            --surface-elevated: #ffffff;
+            --text: #78350f;
+            --text-secondary: #b45309;
+            --border: #fde68a;
+        }
+
+        .theme-gradient-dream {
+            --primary: #c084fc;
+            --primary-dark: #a855f7;
+            --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --surface: rgba(255, 255, 255, 0.9);
+            --surface-elevated: rgba(255, 255, 255, 0.95);
+            --text: #1f2937;
+            --text-secondary: #4b5563;
+            --border: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-black-white {
+            --primary: #ffffff;
+            --primary-dark: #d1d5db;
+            --background: #000000;
+            --surface: #111827;
+            --surface-elevated: #1f2937;
+            --text: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border: #374151;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .calendar {
+                gap: 3px;
+            }
+            
+            .day {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Lunyova Art Nails</h1>
-    <p>Professional nail art services</p>
+    <div class="container">
+        <header class="header">
+            <h1 class="app-title">Маникулатор</h1>
+            <button class="settings-btn" id="settingsBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6m4.22-10.22l4.24-4.24M6.34 6.34L2.1 2.1m16.97 16.97l-4.24 4.24M6.34 17.66L2.1 21.9M23 12h-6m-6 0H1"></path>
+                </svg>
+            </button>
+        </header>
+
+        <div class="calendar-controls">
+            <div class="month-nav">
+                <button class="nav-btn" id="prevMonth">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div class="current-month" id="currentMonth"></div>
+                <button class="nav-btn" id="nextMonth">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <button class="today-btn" id="todayBtn">Сегодня</button>
+        </div>
+
+        <div class="calendar" id="calendar">
+            <div class="weekday">Пн</div>
+            <div class="weekday">Вт</div>
+            <div class="weekday">Ср</div>
+            <div class="weekday">Чт</div>
+            <div class="weekday">Пт</div>
+            <div class="weekday">Сб</div>
+            <div class="weekday">Вс</div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Поиск по имени клиента">
+            <button class="search-clear" id="searchClear">×</button>
+        </div>
+
+        <button class="income-btn" id="incomeBtn">Мой доход</button>
+    </div>
+
+    <!-- Модальное окно клиента -->
+    <div class="modal" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="clientModalTitle">Добавить клиента</h2>
+                <button class="modal-close" id="clientModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="clientForm">
+                    <div class="form-group">
+                        <label class="form-label" for="clientName">Имя клиента</label>
+                        <input type="text" class="form-input" id="clientName" maxlength="30" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Время</label>
+                        <div class="time-picker">
+                            <div class="time-column" id="hoursColumn"></div>
+                            <div class="time-column" id="minutesColumn"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="clientPrice">Сумма (₽)</label>
+                        <input type="number" class="form-input" id="clientPrice" min="0" max="100000" step="1">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelClientBtn">Отмена</button>
+                        <button type="button" class="btn btn-danger hidden" id="deleteClientBtn">Удалить</button>
+                        <button type="submit" class="btn btn-primary" id="saveClientBtn">Сохранить</button>
+                    </div>
+                </form>
+                
+                <div class="duplicate-section">
+                    <div class="duplicate-header">
+                        <div class="duplicate-title">Дублировать запись</div>
+                        <button class="duplicate-toggle" id="duplicateToggle">Показать</button>
+                    </div>
+                    <div class="duplicate-content" id="duplicateContent">
+                        <div class="form-group">
+                            <label class="form-label" for="duplicateDate">Дата</label>
+                            <input type="date" class="form-input" id="duplicateDate">
+                        </div>
+                        <button class="btn btn-primary" id="duplicateBtn">Скопировать</button>
+                    </div>
+                </div>
+                
+                <div class="client-list" id="clientList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно дохода -->
+    <div class="modal" id="incomeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Мой доход</h2>
+                <button class="modal-close" id="incomeModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="income-periods">
+                    <div class="income-period" data-period="day">День</div>
+                    <div class="income-period" data-period="week">Неделя</div>
+                    <div class="income-period" data-period="month">Месяц</div>
+                    <div class="income-period" data-period="all">За всё время</div>
+                </div>
+                
+                <div class="income-range">
+                    <div class="form-group">
+                        <label class="form-label" for="incomeFrom">С</label>
+                        <input type="date" class="form-input" id="incomeFrom">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="incomeTo">По</label>
+                        <input type="date" class="form-input" id="incomeTo">
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="calculateIncomeBtn">Посчитать</button>
+                
+                <div class="income-result" id="incomeResult">0 ₽</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Настройки</h2>
+                <button class="modal-close" id="settingsModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <h3 style="margin-bottom: 15px;">Темы оформления</h3>
+                <div class="themes-grid" id="themesGrid"></div>
+                
+                <h3 style="margin-bottom: 15px;">Импорт/экспорт данных</h3>
+                <div class="import-export">
+                    <button class="import-export-btn" id="exportBtn">Экспорт</button>
+                    <button class="import-export-btn" id="importBtn">Импорт</button>
+                </div>
+                <input type="file" id="importFile" class="hidden" accept=".json">
+                
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" id="closeSettingsBtn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let currentDate = new Date();
+        let selectedDate = null;
+        let editingClient = null;
+        let clients = {};
+        let currentTheme = 'white-mint';
+        let searchQuery = '';
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            loadClients();
+            renderCalendar();
+            setupEventListeners();
+            setupTimePicker();
+            setupThemes();
+            
+            // Устанавливаем текущую дату
+            const today = new Date();
+            document.getElementById('incomeFrom').value = formatDate(today);
+            document.getElementById('incomeTo').value = formatDate(today);
+        });
+
+        // Загрузка данных из localStorage
+        function loadClients() {
+            const saved = localStorage.getItem('maniculator_clients_v1');
+            if (saved) {
+                try {
+                    clients = JSON.parse(saved);
+                } catch (e) {
+                    clients = {};
+                }
+            }
+        }
+
+        // Сохранение данных в localStorage
+        function saveClients() {
+            localStorage.setItem('maniculator_clients_v1', JSON.stringify(clients));
+        }
+
+        // Загрузка темы
+        function loadTheme() {
+            const saved = localStorage.getItem('maniculator_theme_v2');
+            if (saved) {
+                currentTheme = saved;
+            }
+            applyTheme(currentTheme);
+        }
+
+        // Применение темы
+        function applyTheme(theme) {
+            document.body.className = `theme-${theme}`;
+            currentTheme = theme;
+            localStorage.setItem('maniculator_theme_v2', theme);
+            
+            // Обновляем активную тему в настройках
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.remove('active');
+                if (card.dataset.theme === theme) {
+                    card.classList.add('active');
+                }
+            });
+        }
+
+        // Форматирование даты в YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Форматирование даты для отображения
+        function formatDisplayDate(date) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('ru-RU', options);
+        }
+
+        // Отрисовка календаря
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const monthElement = document.getElementById('currentMonth');
+            
+            // Очищаем календарь, кроме дней недели
+            while (calendar.children.length > 7) {
+                calendar.removeChild(calendar.lastChild);
+            }
+            
+            // Устанавливаем заголовок месяца
+            const monthNames = [
+                'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            ];
+            monthElement.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Получаем первый день месяца и количество дней
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            
+            // Начинаем с понедельника (1)
+            let startDay = firstDay.getDay();
+            if (startDay === 0) startDay = 7;
+            
+            // Добавляем дни предыдущего месяца
+            const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+            for (let i = startDay - 1; i > 0; i--) {
+                const day = prevMonth.getDate() - i + 1;
+                const dayElement = createDayElement(day, true, prevMonth);
+                calendar.appendChild(dayElement);
+            }
+            
+            // Добавляем дни текущего месяца
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const isToday = date.toDateString() === today.toDateString();
+                const dayElement = createDayElement(day, false, date, isToday);
+                calendar.appendChild(dayElement);
+            }
+            
+            // Добавляем дни следующего месяца
+            const totalCells = calendar.children.length - 7; // Вычитаем дни недели
+            const remainingCells = 35 - totalCells;
+            if (remainingCells > 0) {
+                const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+                for (let day = 1; day <= remainingCells; day++) {
+                    const dayElement = createDayElement(day, true, nextMonth);
+                    calendar.appendChild(dayElement);
+                }
+            }
+        }
+
+        // Создание элемента дня
+        function createDayElement(day, inactive, date, isToday = false) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'day';
+            if (inactive) dayElement.classList.add('inactive');
+            if (isToday) dayElement.classList.add('today');
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+            dayElement.appendChild(dayNumber);
+            
+            // Добавляем бейдж с количеством записей
+            if (!inactive) {
+                const dateStr = formatDate(date);
+                const dayClients = clients[dateStr] || [];
+                if (dayClients.length > 0) {
+                    const badge = document.createElement('div');
+                    badge.className = 'day-badge';
+                    badge.textContent = dayClients.length;
+                    dayElement.appendChild(badge);
+                }
+                
+                // Подсветка дней с поиском
+                if (searchQuery && searchQuery.trim() !== '') {
+                    const matches = dayClients.filter(client => 
+                        client.name && client.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).length;
+                    
+                    if (matches > 0) {
+                        dayElement.classList.add('search-match');
+                        
+                        // Обновляем или создаем бейдж с количеством совпадений
+                        let badge = dayElement.querySelector('.day-badge');
+                        if (badge) {
+                            badge.textContent = matches;
+                        } else {
+                            badge = document.createElement('div');
+                            badge.className = 'day-badge';
+                            badge.textContent = matches;
+                            dayElement.appendChild(badge);
+                        }
+                    }
+                }
+                
+                // Обработчик клика
+                dayElement.addEventListener('click', () => {
+                    selectedDate = date;
+                    openClientModal();
+                });
+            }
+            
+            return dayElement;
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Навигация по месяцам
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+            
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                currentDate = new Date();
+                renderCalendar();
+            });
+            
+            // Поиск
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.trim();
+                renderCalendar();
+            });
+            
+            document.getElementById('searchClear').addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                renderCalendar();
+            });
+            
+            // Кнопка дохода
+            document.getElementById('incomeBtn').addEventListener('click', openIncomeModal);
+            
+            // Кнопка настроек
+            document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
+            
+            // Модальные окна
+            document.getElementById('clientModalClose').addEventListener('click', closeClientModal);
+            document.getElementById('incomeModalClose').addEventListener('click', closeIncomeModal);
+            document.getElementById('settingsModalClose').addEventListener('click', closeSettingsModal);
+            document.getElementById('closeSettingsBtn').addEventListener('click', closeSettingsModal);
+            
+            // Форма клиента
+            document.getElementById('clientForm').addEventListener('submit', saveClient);
+            document.getElementById('cancelClientBtn').addEventListener('click', closeClientModal);
+            document.getElementById('deleteClientBtn').addEventListener('click', deleteClient);
+            
+            // Дублирование
+            document.getElementById('duplicateToggle').addEventListener('click', () => {
+                const content = document.getElementById('duplicateContent');
+                const toggle = document.getElementById('duplicateToggle');
+                
+                if (content.classList.contains('active')) {
+                    content.classList.remove('active');
+                    toggle.textContent = 'Показать';
+                } else {
+                    content.classList.add('active');
+                    toggle.textContent = 'Скрыть';
+                    
+                    // Устанавливаем дату для дублирования
+                    if (selectedDate) {
+                        document.getElementById('duplicateDate').value = formatDate(selectedDate);
+                    }
+                }
+            });
+            
+            document.getElementById('duplicateBtn').addEventListener('click', duplicateClient);
+            
+            // Доход
+            document.querySelectorAll('.income-period').forEach(period => {
+                period.addEventListener('click', () => {
+                    document.querySelectorAll('.income-period').forEach(p => p.classList.remove('active'));
+                    period.classList.add('active');
+                    
+                    const periodType = period.dataset.period;
+                    calculateIncomeByPeriod(periodType);
+                });
+            });
+            
+            document.getElementById('calculateIncomeBtn').addEventListener('click', calculateIncomeByRange);
+            
+            // Импорт/экспорт
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('importFile').click();
+            });
+            
+            document.getElementById('importFile').addEventListener('change', importData);
+        }
+
+        // Настройка тайм-пикера
+        function setupTimePicker() {
+            const hoursColumn = document.getElementById('hoursColumn');
+            const minutesColumn = document.getElementById('minutesColumn');
+            
+            // Генерируем часы (7-22)
+            for (let hour = 7; hour <= 22; hour++) {
+                const hourOption = document.createElement('div');
+                hourOption.className = 'time-option';
+                hourOption.textContent = String(hour).padStart(2, '0');
+                hourOption.dataset.value = hour;
+                hoursColumn.appendChild(hourOption);
+            }
+            
+            // Генерируем минуты (0-59)
+            for (let minute = 0; minute < 60; minute++) {
+                const minuteOption = document.createElement('div');
+                minuteOption.className = 'time-option';
+                minuteOption.textContent = String(minute).padStart(2, '0');
+                minuteOption.dataset.value = minute;
+                minutesColumn.appendChild(minuteOption);
+            }
+            
+            // Обработчики выбора времени
+            hoursColumn.addEventListener('click', (e) => {
+                if (e.target.classList.contains('time-option')) {
+                    selectTimeOption(hoursColumn, e.target);
+                }
+            });
+            
+            minutesColumn.addEventListener('click', (e) => {
+                if (e.target.classList.contains('time-option')) {
+                    selectTimeOption(minutesColumn, e.target);
+                }
+            });
+            
+            // Обработка скролла
+            let hoursScrollTimeout;
+            hoursColumn.addEventListener('scroll', () => {
+                clearTimeout(hoursScrollTimeout);
+                hoursScrollTimeout = setTimeout(() => {
+                    snapToClosest(hoursColumn);
+                }, 100);
+            });
+            
+            let minutesScrollTimeout;
+            minutesColumn.addEventListener('scroll', () => {
+                clearTimeout(minutesScrollTimeout);
+                minutesScrollTimeout = setTimeout(() => {
+                    snapToClosest(minutesColumn);
+                }, 100);
+            });
+        }
+
+        // Выбор опции времени
+        function selectTimeOption(column, option) {
+            column.querySelectorAll('.time-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            option.classList.add('selected');
+            option.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+
+        // Привязка к ближайшему элементу при скролле
+        function snapToClosest(column) {
+            const options = column.querySelectorAll('.time-option');
+            const columnRect = column.getBoundingClientRect();
+            const centerY = columnRect.top + columnRect.height / 2;
+            
+            let closestOption = null;
+            let closestDistance = Infinity;
+            
+            options.forEach(option => {
+                const optionRect = option.getBoundingClientRect();
+                const optionCenterY = optionRect.top + optionRect.height / 2;
+                const distance = Math.abs(centerY - optionCenterY);
+                
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestOption = option;
+                }
+            });
+            
+            if (closestOption) {
+                selectTimeOption(column, closestOption);
+            }
+        }
+
+        // Получение выбранного времени
+        function getSelectedTime() {
+            const selectedHour = document.querySelector('#hoursColumn .time-option.selected');
+            const selectedMinute = document.querySelector('#minutesColumn .time-option.selected');
+            
+            if (selectedHour && selectedMinute) {
+                return `${selectedHour.dataset.value}:${selectedMinute.dataset.value}`;
+            }
+            
+            return null;
+        }
+
+        // Установка времени
+        function setSelectedTime(time) {
+            const [hours, minutes] = time.split(':');
+            
+            // Выбираем час
+            const hourOptions = document.querySelectorAll('#hoursColumn .time-option');
+            hourOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.value === hours) {
+                    option.classList.add('selected');
+                    option.scrollIntoView({ block: 'center' });
+                }
+            });
+            
+            // Выбираем минуту
+            const minuteOptions = document.querySelectorAll('#minutesColumn .time-option');
+            minuteOptions.forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.value === minutes) {
+                    option.classList.add('selected');
+                    option.scrollIntoView({ block: 'center' });
+                }
+            });
+        }
+
+        // Открытие модального окна клиента
+        function openClientModal(clientIndex = null) {
+            const modal = document.getElementById('clientModal');
+            const title = document.getElementById('clientModalTitle');
+            const form = document.getElementById('clientForm');
+            const deleteBtn = document.getElementById('deleteClientBtn');
+            
+            form.reset();
+            deleteBtn.classList.add('hidden');
+            editingClient = null;
+            
+            if (selectedDate) {
+                const dateStr = formatDate(selectedDate);
+                title.textContent = formatDisplayDate(selectedDate);
+                
+                if (clientIndex !== null) {
+                    // Редактирование клиента
+                    const dayClients = clients[dateStr] || [];
+                    const client = dayClients[clientIndex];
+                    
+                    if (client) {
+                        document.getElementById('clientName').value = client.name || '';
+                        setSelectedTime(client.time);
+                        document.getElementById('clientPrice').value = client.price || '';
+                        deleteBtn.classList.remove('hidden');
+                        editingClient = { date: dateStr, index: clientIndex };
+                    }
+                } else {
+                    // Установка времени по умолчанию
+                    setSelectedTime('10:00');
+                }
+                
+                renderClientList();
+            }
+            
+            modal.classList.add('active');
+        }
+
+        // Закрытие модального окна клиента
+        function closeClientModal() {
+            const modal = document.getElementById('clientModal');
+            modal.classList.remove('active');
+            selectedDate = null;
+            editingClient = null;
+        }
+
+        // Сохранение клиента
+        function saveClient(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('clientName').value.trim();
+            const time = getSelectedTime();
+            const price = parseInt(document.getElementById('clientPrice').value) || 0;
+            
+            if (!name || !time) {
+                alert('Пожалуйста, заполните имя и выберите время');
+                return;
+            }
+            
+            const clientData = { name, time, price };
+            const dateStr = formatDate(selectedDate);
+            
+            if (!clients[dateStr]) {
+                clients[dateStr] = [];
+            }
+            
+            if (editingClient) {
+                // Редактирование существующего клиента
+                clients[editingClient.date][editingClient.index] = clientData;
+            } else {
+                // Добавление нового клиента
+                clients[dateStr].push(clientData);
+            }
+            
+            saveClients();
+            renderCalendar();
+            renderClientList();
+            
+            // Сброс формы
+            document.getElementById('clientForm').reset();
+            setSelectedTime('10:00');
+            document.getElementById('deleteClientBtn').classList.add('hidden');
+            editingClient = null;
+        }
+
+        // Удаление клиента
+        function deleteClient() {
+            if (!editingClient) return;
+            
+            if (confirm('Удалить запись о клиенте?')) {
+                const { date, index } = editingClient;
+                clients[date].splice(index, 1);
+                
+                // Удаляем пустые даты
+                if (clients[date].length === 0) {
+                    delete clients[date];
+                }
+                
+                saveClients();
+                renderCalendar();
+                renderClientList();
+                
+                // Сброс формы
+                document.getElementById('clientForm').reset();
+                setSelectedTime('10:00');
+                document.getElementById('deleteClientBtn').classList.add('hidden');
+                editingClient = null;
+            }
+        }
+
+        // Дублирование клиента
+        function duplicateClient() {
+            if (!editingClient) return;
+            
+            const duplicateDate = document.getElementById('duplicateDate').value;
+            if (!duplicateDate) {
+                alert('Выберите дату для дублирования');
+                return;
+            }
+            
+            const { date, index } = editingClient;
+            const client = { ...clients[date][index] };
+            
+            if (!clients[duplicateDate]) {
+                clients[duplicateDate] = [];
+            }
+            
+            clients[duplicateDate].push(client);
+            saveClients();
+            
+            alert('Запись скопирована');
+            
+            // Закрываем секцию дублирования
+            document.getElementById('duplicateContent').classList.remove('active');
+            document.getElementById('duplicateToggle').textContent = 'Показать';
+        }
+
+        // Отрисовка списка клиентов
+        function renderClientList() {
+            const clientList = document.getElementById('clientList');
+            clientList.innerHTML = '';
+            
+            if (!selectedDate) return;
+            
+            const dateStr = formatDate(selectedDate);
+            const dayClients = clients[dateStr] || [];
+            
+            if (dayClients.length === 0) {
+                clientList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">На этот день нет записей</p>';
+                return;
+            }
+            
+            // Сортировка по времени
+            const sortedClients = [...dayClients].sort((a, b) => {
+                return a.time.localeCompare(b.time);
+            });
+            
+            sortedClients.forEach((client, index) => {
+                // Находим оригинальный индекс
+                const originalIndex = dayClients.findIndex(c => 
+                    c.name === client.name && c.time === client.time && c.price === client.price
+                );
+                
+                const clientItem = document.createElement('div');
+                clientItem.className = 'client-item';
+                
+                clientItem.innerHTML = `
+                    <div class="client-info">
+                        <div class="client-name">${client.name || 'Без имени'}</div>
+                        <div class="client-time">${client.time}</div>
+                    </div>
+                    <div class="client-price">${client.price > 0 ? client.price + ' ₽' : ''}</div>
+                    <div class="client-actions">
+                        <button class="action-btn edit" data-index="${originalIndex}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                        <button class="action-btn delete" data-index="${originalIndex}">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                // Обработчики кнопок
+                clientItem.querySelector('.edit').addEventListener('click', () => {
+                    openClientModal(originalIndex);
+                });
+                
+                clientItem.querySelector('.delete').addEventListener('click', () => {
+                    editingClient = { date: dateStr, index: originalIndex };
+                    deleteClient();
+                });
+                
+                clientList.appendChild(clientItem);
+            });
+        }
+
+        // Открытие модального окна дохода
+        function openIncomeModal() {
+            const modal = document.getElementById('incomeModal');
+            modal.classList.add('active');
+            
+            // Сброс периодов
+            document.querySelectorAll('.income-period').forEach(p => p.classList.remove('active'));
+            
+            // Установка текущей даты
+            const today = new Date();
+            document.getElementById('incomeFrom').value = formatDate(today);
+            document.getElementById('incomeTo').value = formatDate(today);
+            
+            // Расчет дохода за день
+            calculateIncomeByPeriod('day');
+        }
+
+        // Закрытие модального окна дохода
+        function closeIncomeModal() {
+            const modal = document.getElementById('incomeModal');
+            modal.classList.remove('active');
+        }
+
+        // Расчет дохода по периоду
+        function calculateIncomeByPeriod(period) {
+            let fromDate, toDate;
+            const today = new Date();
+            
+            switch (period) {
+                case 'day':
+                    fromDate = new Date(today);
+                    toDate = new Date(today);
+                    break;
+                    
+                case 'week':
+                    // Находим понедельник текущей недели
+                    const dayOfWeek = today.getDay();
+                    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                    fromDate = new Date(today);
+                    fromDate.setDate(today.getDate() + mondayOffset);
+                    toDate = new Date(fromDate);
+                    toDate.setDate(fromDate.getDate() + 6);
+                    break;
+                    
+                case 'month':
+                    fromDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                    toDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+                    break;
+                    
+                case 'all':
+                    calculateAllTimeIncome();
+                    return;
+            }
+            
+            document.getElementById('incomeFrom').value = formatDate(fromDate);
+            document.getElementById('incomeTo').value = formatDate(toDate);
+            
+            calculateIncomeByRange();
+        }
+
+        // Расчет дохода за все время
+        function calculateAllTimeIncome() {
+            let total = 0;
+            
+            Object.values(clients).forEach(dayClients => {
+                dayClients.forEach(client => {
+                    if (client.price && client.price > 0) {
+                        total += client.price;
+                    }
+                });
+            });
+            
+            document.getElementById('incomeResult').textContent = `${total.toLocaleString('ru-RU')} ₽`;
+        }
+
+        // Расчет дохода по диапазону
+        function calculateIncomeByRange() {
+            const fromStr = document.getElementById('incomeFrom').value;
+            const toStr = document.getElementById('incomeTo').value;
+            
+            if (!fromStr || !toStr) {
+                document.getElementById('incomeResult').textContent = '0 ₽';
+                return;
+            }
+            
+            const fromDate = new Date(fromStr);
+            const toDate = new Date(toStr);
+            
+            if (fromDate > toDate) {
+                document.getElementById('incomeResult').textContent = '0 ₽';
+                return;
+            }
+            
+            let total = 0;
+            
+            Object.entries(clients).forEach(([dateStr, dayClients]) => {
+                const date = new Date(dateStr);
+                
+                if (date >= fromDate && date <= toDate) {
+                    dayClients.forEach(client => {
+                        if (client.price && client.price > 0) {
+                            total += client.price;
+                        }
+                    });
+                }
+            });
+            
+            document.getElementById('incomeResult').textContent = `${total.toLocaleString('ru-RU')} ₽`;
+        }
+
+        // Открытие модального окна настроек
+        function openSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.add('active');
+        }
+
+        // Закрытие модального окна настроек
+        function closeSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.remove('active');
+        }
+
+        // Настройка тем
+        function setupThemes() {
+            const themesGrid = document.getElementById('themesGrid');
+            
+            const themes = [
+                { name: 'White Mint', value: 'white-mint', colors: ['#ffffff', '#4ade80'] },
+                { name: 'Lavender', value: 'lavender', colors: ['#f5f3ff', '#c084fc'] },
+                { name: 'Space Gray', value: 'space-gray', colors: ['#111827', '#9ca3af'] },
+                { name: 'Rose Gold', value: 'rose-gold', colors: ['#fdf2f8', '#f9a8d4'] },
+                { name: 'Frosted Blue', value: 'frosted-blue', colors: ['#f0f9ff', '#7dd3fc'] },
+                { name: 'Warm Beige', value: 'warm-beige', colors: ['#fffbeb', '#fcd34d'] },
+                { name: 'Gradient Dream', value: 'gradient-dream', colors: ['#667eea', '#764ba2'] },
+                { name: 'Black & White', value: 'black-white', colors: ['#000000', '#ffffff'] }
+            ];
+            
+            themes.forEach(theme => {
+                const themeCard = document.createElement('div');
+                themeCard.className = 'theme-card';
+                if (theme.value === currentTheme) {
+                    themeCard.classList.add('active');
+                }
+                themeCard.dataset.theme = theme.value;
+                
+                themeCard.innerHTML = `
+                    <div class="theme-name">${theme.name}</div>
+                    <div class="theme-preview">
+                        <div class="theme-color" style="background-color: ${theme.colors[0]}"></div>
+                        <div class="theme-color" style="background-color: ${theme.colors[1]}"></div>
+                    </div>
+                `;
+                
+                themeCard.addEventListener('click', () => {
+                    applyTheme(theme.value);
+                });
+                
+                themesGrid.appendChild(themeCard);
+            });
+        }
+
+        // Экспорт данных
+        function exportData() {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const dataStr = JSON.stringify(clients, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `maniculator_backup_${timestamp}.json`;
+            link.click();
+        }
+
+        // Импорт данных
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    
+                    // Простая валидация структуры
+                    if (typeof importedData === 'object' && importedData !== null) {
+                        if (confirm('Это заменит все текущие данные. Продолжить?')) {
+                            clients = importedData;
+                            saveClients();
+                            renderCalendar();
+                            alert('Данные успешно импортированы');
+                        }
+                    } else {
+                        throw new Error('Неверный формат данных');
+                    }
+                } catch (error) {
+                    alert('Ошибка при импорте: ' + error.message);
+                }
+            };
+            
+            reader.readAsText(file);
+            e.target.value = ''; // Сброс значения input
+        }
+
+        // Регистрация сервис-воркера для PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+                    self.addEventListener('install', event => {
+                        self.skipWaiting();
+                    });
+                    
+                    self.addEventListener('activate', event => {
+                        event.waitUntil(self.clients.claim());
+                    });
+                    
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(
+                            fetch(event.request).catch(() => {
+                                return new Response('Офлайн режим', {
+                                    status: 503,
+                                    statusText: 'Service Unavailable'
+                                });
+                            })
+                        );
+                    });
+                `));
+            });
+        }
+    </script>
 </body>
 </html>
